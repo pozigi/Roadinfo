@@ -23,6 +23,9 @@ public class pregledPotnega extends AppCompatActivity {
     private FloatingActionButton fb;
     int potniS;
     int potniN;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceBundle){
         super.onCreate(savedInstanceBundle);
@@ -76,5 +79,11 @@ public class pregledPotnega extends AppCompatActivity {
             }
         });
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mAdapter.notifyDataSetChanged();
     }
 }

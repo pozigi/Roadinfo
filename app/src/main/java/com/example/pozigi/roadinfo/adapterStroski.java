@@ -67,7 +67,7 @@ public class adapterStroski extends RecyclerView.Adapter<adapterStroski.ViewHold
         String mesec = (String) DateFormat.format("MMM", trenutni.getDatum() );
         String leto = (String) DateFormat.format("yyyy",trenutni.getDatum());
 
-        holder.steviloPotnih.setText(String.valueOf(steviloP) + " stevilo potnih nalogov"); //oseba
+        holder.steviloPotnih.setText("Stevilo potnih stroškov: " + String.valueOf(steviloP)); //oseba
         holder.datum.setText(mesec + " " + leto); //st nalogov
 
 

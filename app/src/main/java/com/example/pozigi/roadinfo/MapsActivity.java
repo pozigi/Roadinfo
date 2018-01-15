@@ -3,13 +3,21 @@ package com.example.pozigi.roadinfo;
 /**
  * Created by pozigi on 13. 01. 2018.
  */
+
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.icu.text.DecimalFormat;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -33,24 +41,88 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMyLocationClickListener;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+
+
+import android.location.Location;
+import android.widget.Toast;
 
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, View.OnClickListener, DirectionCallback {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, View.OnClickListener, DirectionCallback, OnMyLocationButtonClickListener, OnMyLocationClickListener {
+
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+    private boolean mPermissionDenied = false;
     ApplicationMy app;
     private GoogleMap mMap;
     private String serverKey = "AIzaSyDNCtwGj2h2cFH9wuEinkP6YDPMAjDG9SA";
     private LatLng origin;
     private LatLng destination;
-    Button bt;
+    private final int TEN_SECONDS = 10000;
+    boolean prvic = true;
+    Handler handler = new Handler();
+    Button bt, shrani;
     int id;
     int potniS;
     int potniN;
     List<LatLng> waypoints;
+    Location mLastKnownLocation;
     boolean zastavica;
+    FusedLocationProviderClient   mFusedLocationProviderClient;
 
+    private void enableMyLocation() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Permission to access the location is missing.
+            PermissionUtils.requestPermission(this, LOCATION_PERMISSION_REQUEST_CODE,
+                    Manifest.permission.ACCESS_FINE_LOCATION, true);
+        } else if (mMap != null) {
+            // Access to the location has been granted to the app.
+            mMap.setMyLocationEnabled(true);
+
+        }
+    }
+
+    private void getDeviceLocation() {
+    /*
+     * Get the best and most recent location of the device, which may be null in rare
+     * cases when a location is not available.
+     */
+    boolean mLocationPermissionGranted = true;
+        try {
+            if (mLocationPermissionGranted) {
+                Task locationResult = mFusedLocationProviderClient.getLastLocation();
+                locationResult.addOnCompleteListener(this, new OnCompleteListener() {
+                    @Override
+                    public void onComplete(@NonNull Task task) {
+                        if (task.isSuccessful()) {
+                            // Set the map's camera position to the current location of the device.
+                            mLastKnownLocation = (Location) task.getResult();
+                            app.getAll().getPotneStroske().get(potniS).getPotneNaloge().get(potniN).getRelacije().get(id).getGPS().add(new Lokacija(mLastKnownLocation.getLongitude(),mLastKnownLocation.getLatitude(),mLastKnownLocation.getTime()));
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                                    new LatLng(mLastKnownLocation.getLatitude(),
+                                            mLastKnownLocation.getLongitude()), 10));
+
+                        } else {
+                           // Log.d(TAG, "Current location is null. Using defaults.");
+                            //Log.e(TAG, "Exception: %s", task.getException());
+                          //  mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mDefaultLocation, DEFAULT_ZOOM));
+                           // mMap.getUiSettings().setMyLocationButtonEnabled(false);
+                        }
+                    }
+                });
+            }
+        } catch(SecurityException e)  {
+            Log.e("Exception: %s", e.getMessage());
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +139,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if(app.getAll().getPotneStroske().get(potniS).getPotneNaloge().get(potniN).getRelacije().get(id).getGPS().size()>0){
             requestDirection(false);
         }
+
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
         PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
                 getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
@@ -100,6 +174,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         bt = (Button) findViewById(R.id.button3);
         bt.setOnClickListener(this);
+        shrani = (Button) findViewById(R.id.button4);
+        shrani.setOnClickListener(this);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -117,6 +193,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
        /* LatLng sydney = new LatLng(-34, 151);
         mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney)); */
+        mMap.setOnMyLocationButtonClickListener(this);
+        mMap.setOnMyLocationClickListener(this);
+        enableMyLocation();
     }
     public void requestDirection(boolean zastavica){
         //Snackbar.make(btnRequestDirection, "Direction Requesting...", Snackbar.LENGTH_SHORT).show();
@@ -156,6 +235,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         int id = v.getId();
         if(id == R.id.button3){
             requestDirection(true);
+        }
+        if(id == R.id.button4){
+            handler.removeCallbacksAndMessages(null);
+            app.save();
+            onBackPressed();
         }
     }
 
@@ -223,4 +307,57 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onDirectionFailure(Throwable t) {
 
     }
+
+    @Override
+    protected void onResumeFragments() {
+        super.onResumeFragments();
+        if (mPermissionDenied) {
+            // Permission was not granted, display error dialog.
+            showMissingPermissionError();
+            mPermissionDenied = false;
+        }
+    }
+
+    @Override
+    public boolean onMyLocationButtonClick() {
+        scheduleSendLocation();
+        return false;
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        if (requestCode != LOCATION_PERMISSION_REQUEST_CODE) {
+            return;
+        }
+
+        if (PermissionUtils.isPermissionGranted(permissions, grantResults,
+                Manifest.permission.ACCESS_FINE_LOCATION)) {
+            // Enable the my location layer if the permission has been granted.
+            enableMyLocation();
+        } else {
+            // Display the missing permission error dialog when the fragments resume.
+            mPermissionDenied = true;
+        }
+    }
+    @Override
+    public void onMyLocationClick(@NonNull Location location) {
+
+    }
+
+    public void scheduleSendLocation(){
+        handler.postDelayed(new Runnable(){
+            public void run(){
+                getDeviceLocation();
+                handler.postDelayed(this,TEN_SECONDS);
+            }
+        },TEN_SECONDS);
+    }
+
+    private void showMissingPermissionError() {
+        PermissionUtils.PermissionDeniedDialog
+                .newInstance(true).show(getSupportFragmentManager(), "dialog");
+    }
+
+
+
 }
