@@ -5,6 +5,7 @@ package com.example.lib_data;
  */
 
 public class Lokacija {
+
     private double lang;
     private double latt;
     private long datum;

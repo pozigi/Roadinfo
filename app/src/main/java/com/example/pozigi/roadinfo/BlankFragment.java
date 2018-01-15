@@ -13,7 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;;
 
 public class BlankFragment extends Fragment {
-
+    ApplicationMy app = null;
     public BlankFragment() {
         // Required empty public constructor
     }
@@ -21,7 +21,7 @@ public class BlankFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        app = (ApplicationMy) getActivity().getApplication();
     }
 
     @Override
@@ -32,8 +32,10 @@ public class BlankFragment extends Fragment {
 
         RecyclerView rv = (RecyclerView) rootView.findViewById(R.id.rv_recycler_view);
         rv.setHasFixedSize(true);
-        MyAdapter adapter = new MyAdapter(new String[]{"test one", "test two", "test three", "test four", "test five", "test six", "test seven"});
-        rv.setAdapter(adapter);
+        adapterStroski aS = new adapterStroski(app,getActivity());
+       rv.setAdapter(aS);
+       /* MyAdapter adapter = new MyAdapter(app.getAll());
+        rv.setAdapter(adapter); */
 
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         rv.setLayoutManager(llm);

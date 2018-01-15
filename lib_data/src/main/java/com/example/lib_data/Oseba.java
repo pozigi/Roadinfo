@@ -1,19 +1,22 @@
 package com.example.lib_data;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * Created by pozigi on 20. 11. 2017.
  */
 
 public class Oseba {
-    private String id;
+    private static final AtomicInteger count = new AtomicInteger(0);
+    private int id;
     private String ime;
     private String priimek;
     private String naslov;
     private String kraj;
     private String posta;
 
-    public Oseba(String id, String ime, String priimek, String naslov, String kraj, String posta) {
-        this.id = id;
+    public Oseba(String ime, String priimek, String naslov, String kraj, String posta) {
+        this.id = count.incrementAndGet();
         this.ime = ime;
         this.priimek = priimek;
         this.naslov = naslov;
@@ -21,11 +24,11 @@ public class Oseba {
         this.posta = posta;
     }
 
-    public String getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 

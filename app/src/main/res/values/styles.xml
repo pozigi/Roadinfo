@@ -9,4 +9,5 @@
        <!-- <item name="windowNoTitle">true</item> -->
     </style>
 
+    <string name="action_favorite" />
 </resources>
