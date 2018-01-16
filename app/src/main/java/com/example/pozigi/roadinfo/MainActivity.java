@@ -2,6 +2,7 @@ package com.example.pozigi.roadinfo;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -19,12 +20,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import static android.support.design.widget.Snackbar.LENGTH_SHORT;
+import static android.support.v4.view.PagerAdapter.POSITION_NONE;
 
 public class MainActivity extends AppCompatActivity {
     ApplicationMy app;
     ViewPager viewPager;
     static PagerAdapter pagerAdapter;
     TabLayout tabLayout;
+    Handler handler = new Handler();
+    final int TWO = 2000;
+    public StroskiFragment s;
 
    public static Bundle ars = new Bundle();
     public static Bundle ars1 = new Bundle();
@@ -64,7 +69,9 @@ public class MainActivity extends AppCompatActivity {
            case R.id.Sinhronizacija:
                if(app.dobiLogin()){
                    app.potegniServer();
-                   refresh();
+
+                   scheduleSendLocation();
+                   handler.removeCallbacksAndMessages(null);
                }else{
                    Snackbar mySnackbar = Snackbar.make(findViewById(R.id.ClaM), "Ne moreš izvršiti tega dejanja (loginaj)", LENGTH_SHORT);
                    mySnackbar.show();
@@ -75,9 +82,19 @@ public class MainActivity extends AppCompatActivity {
        }
        return true;
     }
-    static public void refresh(){
-        pagerAdapter.notifyDataSetChanged();
+
+     public void refresh(){
+
     }
+    public void scheduleSendLocation(){
+        handler.postDelayed(new Runnable(){
+            public void run(){
+                refresh();
+                handler.postDelayed(this,3000);
+            }
+        },3000);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -114,10 +131,11 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
     @Override
     public void onResume() {
         super.onResume();
-
+        viewPager.getAdapter().notifyDataSetChanged();
 
 
     }
@@ -162,8 +180,8 @@ public class MainActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    StroskiFragment s = new StroskiFragment();
-
+                    s = new StroskiFragment();
+                    app.setListener(s);
                     return s;
                 case 1:
                         //tu mamo zej vsa vozila
@@ -194,6 +212,10 @@ public class MainActivity extends AppCompatActivity {
             TextView tv = (TextView) tab.findViewById(R.id.custom_text);
             tv.setText(tabTitles[position]);
             return tab;
+        }
+        @Override
+        public int getItemPosition(Object object){
+            return POSITION_NONE;
         }
     }
 }

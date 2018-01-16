@@ -41,6 +41,11 @@ public class ApplicationMy  extends Application{
     Koren tmp = new Koren();
     private static final String DATA_MAP = "roadinfo";
     private static final String FILE_NAME = "roadinfo2.json";
+    private Listener listener;
+
+    public void setListener(Listener listener){
+        this.listener = listener;
+    }
 
     @Override
     public void onCreate() {
@@ -102,6 +107,8 @@ public class ApplicationMy  extends Application{
        new UploadFileAsync().execute();
    }
 
+
+
     private class UploadFileAsync extends AsyncTask<String,Void,String>{
 
         @Override
@@ -122,7 +129,7 @@ public class ApplicationMy  extends Application{
                 if (sourceFile.isFile()) {
 
                     try {
-                        String upLoadServerUri = "http://192.168.1.7/root/UEA/upload.php?user=" + tmp.getUporabnik();
+                        String upLoadServerUri = "http://164.8.204.80/root/UEA/upload.php?user=" + tmp.getUporabnik();
 
                         // open a URL connection to the Servlet
                         FileInputStream fileInputStream = new FileInputStream(
@@ -231,7 +238,7 @@ public class ApplicationMy  extends Application{
         }
     }
     public void potegniServer(){
-        String file_url = "http://192.168.1.7/root/UEA/" + tmp.getUporabnik() + "/roadinfo2.json" ;
+        String file_url = "http://164.8.204.80/root/UEA/" + tmp.getUporabnik() + "/roadinfo2.json" ;
         new Download().execute(file_url);
     }
     class Download extends AsyncTask<String,String,String>{
@@ -285,7 +292,10 @@ public class ApplicationMy  extends Application{
         }
         @Override
         protected void onPostExecute(String url){
-            MainActivity.refresh();
+            load();
+            MainActivity.pagerAdapter.notifyDataSetChanged();
+            listener.refresh();
+
         }
     }
 }

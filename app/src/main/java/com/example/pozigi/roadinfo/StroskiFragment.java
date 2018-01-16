@@ -18,17 +18,22 @@ import static android.support.design.widget.Snackbar.LENGTH_SHORT;
  * Created by pozigi on 3. 12. 2017.
  */
 
-public class StroskiFragment extends Fragment{
+public class StroskiFragment extends Fragment implements Listener{
     ApplicationMy app;
     private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
+    public RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private FloatingActionButton fb;
+
    // public static Bundle bundle = new Bundle();
 
     public StroskiFragment(){}
 
-
+    @Override
+    public void onResume() {
+        super.onResume();
+        mAdapter.notifyDataSetChanged();
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -71,4 +76,9 @@ public class StroskiFragment extends Fragment{
         return rootView;
     }
 
+    @Override
+    public void refresh() {
+        app.save();
+        mAdapter.notifyDataSetChanged();
+    }
 }

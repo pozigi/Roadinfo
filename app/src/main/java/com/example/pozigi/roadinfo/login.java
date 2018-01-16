@@ -86,7 +86,7 @@ public class login extends AppCompatActivity{
         @Override
         protected String doInBackground(String... params) {
             try{
-                url = new URL("http://192.168.1.7/root/UEA/login.inc.php");
+                url = new URL("http://164.8.204.80/root/UEA/login.inc.php");
             } catch (MalformedURLException e){
                 e.printStackTrace();
                 return "exception";

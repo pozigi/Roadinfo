@@ -82,7 +82,7 @@ public class Registracija extends AppCompatActivity{
         @Override
         protected String doInBackground(String... params) {
             try{
-                url = new URL("http://192.168.1.7/root/UEA/Registration.php");
+                url = new URL("http://164.8.204.80/root/UEA/Registration.php");
             } catch (MalformedURLException e){
                 e.printStackTrace();
                 return "exception";

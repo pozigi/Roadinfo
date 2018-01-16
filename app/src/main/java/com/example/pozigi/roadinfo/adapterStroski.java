@@ -30,7 +30,7 @@ import static com.example.pozigi.roadinfo.MainActivity.ars;
  * Created by pozigi on 3. 12. 2017.
  */
 
-public class adapterStroski extends RecyclerView.Adapter<adapterStroski.ViewHolder> {
+public class adapterStroski extends RecyclerView.Adapter<adapterStroski.ViewHolder> implements  Listener {
     List<potniStroski> all;
     Activity ac;
      ApplicationMy app;
@@ -141,6 +141,11 @@ public class adapterStroski extends RecyclerView.Adapter<adapterStroski.ViewHold
     @Override
     public int getItemCount() {
         return all.size();
+    }
+
+    @Override
+    public void refresh() {
+        notifyDataSetChanged();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder{
