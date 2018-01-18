@@ -38,6 +38,8 @@ dependencies {
     compile 'com.loopj.android:android-async-http:1.4.9'
     compile 'com.google.android.gms:play-services-places:11.8.0'
     compile "com.google.android.gms:play-services-location:11.8.0"
+    compile 'com.github.bumptech.glide:glide:3.5.2'
+
   //  compiile 'com.google.android.gms:play-services-places:11.0.4'
 
 }

@@ -34,6 +34,9 @@ public class MainActivity extends AppCompatActivity {
    public static Bundle ars = new Bundle();
     public static Bundle ars1 = new Bundle();
 
+
+
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.meni,menu);
